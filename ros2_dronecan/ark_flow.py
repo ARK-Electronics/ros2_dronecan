@@ -10,17 +10,25 @@ class MinimalPublisher(Node):
     def __init__(self):
         super().__init__('minimal_publisher')
         self.publisher_ = self.create_publisher(String, 'topic', 10)
+        self.cannode = dronecan.make_node('can0', node_id=100, bitrate=1000000)
+        self.cannode_monitor = dronecan.app.node_monitor.NodeMonitor(self.cannode)
+        self.dynamic_node_id_allocator = dronecan.app.dynamic_node_id.CentralizedServer(self.cannode, self.cannode_monitor)
+        self.i = 0
 
-        node = dronecan.make_node(port='can0', node_id=100, bitrate=1000000)
-        node_monitor = dronecan.app.node_monitor.NodeMonitor(node)
+        # Register message handlers
+        print("adding dc callback")
+        # cannode.add_handler(None, lambda msg: print(dronecan.to_yaml(msg)))
+        self.cannode.add_handler(None, self.dronecan_msg_callback)
 
-        dynamic_node_id_allocator = dronecan.app.dynamic_node_id.CentralizedServer(node, node_monitor)
+        # Start timer spin() callback
+        self.timer = self.create_timer(0.01, self.timer_callback)
 
-        node.add_handler(None, lambda msg: dronecan_msg_callback)
 
-        node.spin(0)
+    def timer_callback(self):
+        self.cannode.spin(0)
 
-    def dronecan_msg_callback(self):
+
+    def dronecan_msg_callback(self, msg):
         # Print received DC message
         print(dronecan.to_yaml(msg))
 
@@ -35,8 +43,10 @@ class MinimalPublisher(Node):
 def main(args=None):
     rclpy.init(args=args)
 
+    print("creating minimal publisher")
     minimal_publisher = MinimalPublisher()
 
+    print("spinning ros2 node")
     rclpy.spin(minimal_publisher)
 
     # Destroy the node explicitly
