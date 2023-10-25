@@ -15,38 +15,39 @@ class MinimalPublisher(Node):
         self.dynamic_node_id_allocator = dronecan.app.dynamic_node_id.CentralizedServer(self.cannode, self.cannode_monitor)
         self.i = 0
 
-        # Register message handlers
-        print("adding dc callback")
-        # cannode.add_handler(None, lambda msg: print(dronecan.to_yaml(msg)))
-        self.cannode.add_handler(None, self.dronecan_msg_callback)
+        self.cannode.add_handler(dronecan.com.hex.equipment.flow.Measurement, self.flow_callback)
+        self.cannode.add_handler(dronecan.uavcan.equipment.range_sensor.Measurement, self.range_callback)
 
-        # Start timer spin() callback
-        self.timer = self.create_timer(0.01, self.timer_callback)
+        # Timer callback for processing received messages -- 200Hz
+        self.timer = self.create_timer(0.005, self.timer_callback)
 
 
     def timer_callback(self):
         self.cannode.spin(0)
 
 
-    def dronecan_msg_callback(self, msg):
+    def flow_callback(self, msg):
         # Print received DC message
+        print("received flow message")
         print(dronecan.to_yaml(msg))
 
         # Now publish to ROS2
-        msg = String()
-        msg.data = 'Hello World: %d' % self.i
-        self.publisher_.publish(msg)
-        self.get_logger().info('Publishing: "%s"' % msg.data)
-        self.i += 1
+        # msg = String()
+        # msg.data = 'Hello World: %d' % self.i
+        # self.publisher_.publish(msg)
+        # self.get_logger().info('Publishing: "%s"' % msg.data)
+        # self.i += 1
+
+    def range_callback(self, msg):
+        print("received ramge message")
+        print(dronecan.to_yaml(msg))
 
 
 def main(args=None):
     rclpy.init(args=args)
 
-    print("creating minimal publisher")
     minimal_publisher = MinimalPublisher()
 
-    print("spinning ros2 node")
     rclpy.spin(minimal_publisher)
 
     # Destroy the node explicitly
