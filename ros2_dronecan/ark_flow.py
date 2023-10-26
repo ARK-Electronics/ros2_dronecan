@@ -54,9 +54,9 @@ class DronecanListenerNode(Node):
         d.current_distance = m.range
 
         if m.sensor_type == m.SENSOR_TYPE_UNDEFINED:
-            d.type = 4 # out of range == unknowm
+            d.type = d.MAV_DISTANCE_SENSOR_INFRARED
         elif m.sensor_type == m.SENSOR_TYPE_SONAR:
-            d.type = distanceMAV_DISTANCE_SENSOR_ULTRASOUND
+            d.type = d.MAV_DISTANCE_SENSOR_ULTRASOUND
         elif m.sensor_type == m.SENSOR_TYPE_LIDAR:
             d.type = d.MAV_DISTANCE_SENSOR_LASER
         elif m.sensor_type == m.SENSOR_TYPE_RADAR:
@@ -85,3 +85,45 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
+
+
+# Connected directly to FC
+
+# TOPIC: sensor_optical_flow
+#  sensor_optical_flow
+#     timestamp: 191878100 (0.000580 seconds ago)
+#     timestamp_sample: 191878100 (0 us before timestamp)
+#     device_id: 8682243 (Type: 0x84, UAVCAN:0 (0x7B))
+#     pixel_flow: [0.00000, 0.00000]
+#     delta_angle: [-0.00001, -0.00008, nan]
+#     distance_m: 0.00000
+#     integration_timespan_us: 15872
+#     error_count: 0
+#     max_flow_rate: nan
+#     min_ground_distance: nan
+#     max_ground_distance: nan
+#     delta_angle_available: True
+#     distance_available: False
+#     quality: 117
+#     mode: 0
+
+
+
+# TOPIC: distance_sensor
+#  distance_sensor
+#     timestamp: 294001790 (0.013518 seconds ago)
+#     device_id: 9009923 (Type: 0x89, UAVCAN:0 (0x7B))
+#     min_distance: 0.08000
+#     max_distance: 30.00000
+#     current_distance: 0.74316
+#     variance: 0.00000
+#     h_fov: 0.10473
+#     v_fov: 0.10473
+#     q: [0.00000, 0.00000, 0.00000, 0.00000] (Roll: 0.0 deg, Pitch: -0.0 deg, Yaw: 0.0 deg)
+#     signal_quality: 100
+#     type: 0
+#     orientation: 2
+
+
+# TODO
+# When connected via ROS2 and Jetson CAN
