@@ -7,6 +7,9 @@
   <maintainer email="dahl.jakejacob@gmail.com">jake</maintainer>
   <license>TODO: License declaration</license>
 
+  <depend>ament_python</depend>
+  <depend>px4_msgs</depend>
+
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
