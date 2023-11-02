@@ -38,10 +38,16 @@ class DronecanListenerNode(Node):
         m = msg.message
         flow = SensorOpticalFlow()
 
-        flow.integration_timespan_us = int(m.integration_interval * 1e6);
+        flow.timestamp = int(self.get_clock().now().nanoseconds / 1000)
+        flow.timestamp_sample = flow.timestamp
+
+        flow.integration_timespan_us = int(m.integration_interval * 1e6)
         flow.delta_angle = [m.rate_gyro_integral[0], m.rate_gyro_integral[1], float('nan')]
         flow.pixel_flow = [m.flow_integral[0], m.flow_integral[1]]
         flow.quality = m.quality
+        flow.max_flow_rate = float('nan')
+        flow.min_ground_distance = float('nan')
+        flow.max_ground_distance = float('nan')
 
         self.flow_publisher.publish(flow)
 
@@ -51,6 +57,7 @@ class DronecanListenerNode(Node):
         # https://github.com/PX4/PX4-Autopilot/blob/main/src/drivers/uavcannode/Publishers/RangeSensorMeasurement.hpp
         m = msg.message
         d = DistanceSensor()
+        d.timestamp = int(self.get_clock().now().nanoseconds / 1000)
         d.current_distance = m.range
 
         if m.sensor_type == m.SENSOR_TYPE_UNDEFINED:
@@ -62,16 +69,17 @@ class DronecanListenerNode(Node):
         elif m.sensor_type == m.SENSOR_TYPE_RADAR:
             d.type = d.MAV_DISTANCE_SENSOR_RADAR
 
-        if m.reading_type == m.READING_TYPE_UNDEFINED:
-            d.signal_quality = 0
-        elif m.reading_type == m.READING_TYPE_VALID_RANGE:
+        d.signal_quality = -1
+
+        if m.reading_type == m.READING_TYPE_VALID_RANGE:
             d.signal_quality = 100
-        elif m.reading_type == m.READING_TYPE_TOO_CLOSE:
-            d.signal_quality = 0
-        elif m.reading_type == m.READING_TYPE_TOO_FAR:
-            d.signal_quality = 0
 
         d.h_fov = m.field_of_view
+        d.v_fov = m.field_of_view
+        d.orientation = d.ROTATION_DOWNWARD_FACING
+
+        d.min_distance = 0.08
+        d.max_distance = 30.0
 
         self.range_publisher.publish(d)
 
@@ -85,45 +93,3 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-
-
-# Connected directly to FC
-
-# TOPIC: sensor_optical_flow
-#  sensor_optical_flow
-#     timestamp: 191878100 (0.000580 seconds ago)
-#     timestamp_sample: 191878100 (0 us before timestamp)
-#     device_id: 8682243 (Type: 0x84, UAVCAN:0 (0x7B))
-#     pixel_flow: [0.00000, 0.00000]
-#     delta_angle: [-0.00001, -0.00008, nan]
-#     distance_m: 0.00000
-#     integration_timespan_us: 15872
-#     error_count: 0
-#     max_flow_rate: nan
-#     min_ground_distance: nan
-#     max_ground_distance: nan
-#     delta_angle_available: True
-#     distance_available: False
-#     quality: 117
-#     mode: 0
-
-
-
-# TOPIC: distance_sensor
-#  distance_sensor
-#     timestamp: 294001790 (0.013518 seconds ago)
-#     device_id: 9009923 (Type: 0x89, UAVCAN:0 (0x7B))
-#     min_distance: 0.08000
-#     max_distance: 30.00000
-#     current_distance: 0.74316
-#     variance: 0.00000
-#     h_fov: 0.10473
-#     v_fov: 0.10473
-#     q: [0.00000, 0.00000, 0.00000, 0.00000] (Roll: 0.0 deg, Pitch: -0.0 deg, Yaw: 0.0 deg)
-#     signal_quality: 100
-#     type: 0
-#     orientation: 2
-
-
-# TODO
-# When connected via ROS2 and Jetson CAN
