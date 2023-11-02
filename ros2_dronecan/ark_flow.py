@@ -16,8 +16,8 @@ class DronecanListenerNode(Node):
     def __init__(self):
         super().__init__('dronecan_listener')
 
-        self.flow_publisher = self.create_publisher(SensorOpticalFlow, '/dronecan/sensor_optical_flow', 10)
-        self.range_publisher = self.create_publisher(DistanceSensor, '/dronecan/distance_sensor', 10)
+        self.flow_publisher = self.create_publisher(SensorOpticalFlow, '/fmu/in/sensor_optical_flow', 10)
+        self.range_publisher = self.create_publisher(DistanceSensor, '/fmu/in/distance_sensor', 10)
 
         self.cannode = dronecan.make_node('can0', node_id=100, bitrate=1000000)
         self.cannode_monitor = dronecan.app.node_monitor.NodeMonitor(self.cannode)
