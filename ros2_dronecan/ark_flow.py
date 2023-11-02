@@ -38,7 +38,7 @@ class DronecanListenerNode(Node):
         m = msg.message
         flow = SensorOpticalFlow()
 
-        flow.timestamp = self.get_clock().now() / 1000
+        flow.timestamp = self.get_clock().now().nanoseconds / 1000
         flow.timestamp_sample = flow.timestamp
 
         flow.integration_timespan_us = int(m.integration_interval * 1e6)
@@ -57,7 +57,7 @@ class DronecanListenerNode(Node):
         # https://github.com/PX4/PX4-Autopilot/blob/main/src/drivers/uavcannode/Publishers/RangeSensorMeasurement.hpp
         m = msg.message
         d = DistanceSensor()
-        d.timestamp = self.get_clock().now() / 1000
+        d.timestamp = self.get_clock().now().nanoseconds / 1000
         d.current_distance = m.range
 
         if m.sensor_type == m.SENSOR_TYPE_UNDEFINED:
