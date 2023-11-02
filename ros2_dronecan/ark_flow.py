@@ -65,7 +65,7 @@ class DronecanListenerNode(Node):
         if m.reading_type == m.READING_TYPE_UNDEFINED:
             d.signal_quality = 0
         elif m.reading_type == m.READING_TYPE_VALID_RANGE:
-            d.signal_quality = 99
+            d.signal_quality = 100
         elif m.reading_type == m.READING_TYPE_TOO_CLOSE:
             d.signal_quality = 0
         elif m.reading_type == m.READING_TYPE_TOO_FAR:
